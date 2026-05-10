@@ -1,0 +1,31 @@
+CONFIG:
+  sentiment_skew:
+    IPHONE:  {IPHONESENTIMENT}
+    MACBOOK: {MACBOOKSENTIMENT}
+    AIRPODS: {AIRPODSSENTIMENT}
+    IPAD:    {IPADSENTIMENT}
+
+Generate a raw JSON array of exactly 100 Apple product reviews for a sentiment analysis pipeline.
+
+SENTIMENT SKEW:
+- POSITIVE_HEAVY: 80% POSITIVE, 15% NEUTRAL, 5% NEGATIVE
+- POSITIVE:       65% POSITIVE, 25% NEUTRAL, 10% NEGATIVE
+- NEUTRAL:        15% POSITIVE, 75% NEUTRAL, 10% NEGATIVE
+- NEGATIVE:        5% POSITIVE, 25% NEUTRAL, 70% NEGATIVE
+
+Rules:
+- Follow the CONFIG skew per product exactly
+- Every product must have reviews in ALL three sentiment classes — never 100% in one
+- POSITIVE_HEAVY > POSITIVE > NEUTRAL > NEGATIVE in positivity — do not flatten
+
+FIELDS:
+- id               → 1–100
+- product          → uppercase string
+- sentiment        → POSITIVE | NEUTRAL | NEGATIVE
+- body             → review text
+- helpfulVotes     → 0–200
+- verifiedPurchase → 70% true
+
+WRITING STYLES:
+25% casual/sloppy · 20% emotional · 15% analytical · 20% short/blunt · 10% chaotic · 10% third-party
+30% of reviews: typos, missing apostrophes, inconsistent capitalization
