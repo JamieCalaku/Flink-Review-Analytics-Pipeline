@@ -1,17 +1,17 @@
 package com.jamiecalaku.model;
 
 public class Review {
-    private Integer id;
-    private String product;
-    private String sentiment;
+    private int id;
+    private Product product;
+    private Sentiment sentiment;
     private String body;
-    private Integer helpfulVotes;
-    private Boolean verifiedPurchase;
-    private Long timestamp;
+    private int helpfulVotes;
+    private boolean verifiedPurchase;
+    private long timestamp;
 
     public Review() {}
 
-    public Review(Integer id, String product, String sentiment, String body, Integer helpfulVotes, Boolean verifiedPurchase, Long timestamp) {
+    public Review(int id, Product product, Sentiment sentiment, String body, int helpfulVotes, boolean verifiedPurchase, long timestamp) {
         this.id = id;
         this.product = product;
         this.sentiment = sentiment;
@@ -21,27 +21,27 @@ public class Review {
         this.timestamp = timestamp;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(String product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 
-    public String getSentiment() {
+    public Sentiment getSentiment() {
         return sentiment;
     }
 
-    public void setSentiment(String sentiment) {
+    public void setSentiment(Sentiment sentiment) {
         this.sentiment = sentiment;
     }
 
@@ -53,27 +53,27 @@ public class Review {
         this.body = body;
     }
 
-    public Integer getHelpfulVotes() {
+    public int getHelpfulVotes() {
         return helpfulVotes;
     }
 
-    public void setHelpfulVotes(Integer helpfulVotes) {
+    public void setHelpfulVotes(int helpfulVotes) {
         this.helpfulVotes = helpfulVotes;
     }
 
-    public Boolean getVerifiedPurchase() {
+    public boolean isVerifiedPurchase() {
         return verifiedPurchase;
     }
 
-    public void setVerifiedPurchase(Boolean verifiedPurchase) {
+    public void setVerifiedPurchase(boolean verifiedPurchase) {
         this.verifiedPurchase = verifiedPurchase;
     }
 
-    public Long getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Long timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 }

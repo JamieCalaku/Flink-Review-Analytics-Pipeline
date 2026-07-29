@@ -1,31 +1,22 @@
-CONFIG:
-  sentiment_skew:
-    IPHONE:  {IPHONESENTIMENT}
-    MACBOOK: {MACBOOKSENTIMENT}
-    AIRPODS: {AIRPODSSENTIMENT}
-    IPAD:    {IPADSENTIMENT}
+ Generate a raw JSON array of exactly {REVIEW_COUNT} Apple product reviews for a sentiment analysis pipeline.
 
-Generate a raw JSON array of exactly 100 Apple product reviews for a sentiment analysis pipeline.
+  REVIEW DISTRIBUTION:
+  - IPHONE:  {IPHONE_POSITIVE_COUNT} POSITIVE, {IPHONE_NEUTRAL_COUNT} NEUTRAL, {IPHONE_NEGATIVE_COUNT} NEGATIVE
+  - MACBOOK: {MACBOOK_POSITIVE_COUNT} POSITIVE, {MACBOOK_NEUTRAL_COUNT} NEUTRAL, {MACBOOK_NEGATIVE_COUNT} NEGATIVE
+  - AIRPODS: {AIRPODS_POSITIVE_COUNT} POSITIVE, {AIRPODS_NEUTRAL_COUNT} NEUTRAL, {AIRPODS_NEGATIVE_COUNT} NEGATIVE
+  - IPAD:    {IPAD_POSITIVE_COUNT} POSITIVE, {IPAD_NEUTRAL_COUNT} NEUTRAL, {IPAD_NEGATIVE_COUNT} NEGATIVE
 
-SENTIMENT SKEW:
-- POSITIVE_HEAVY: 80% POSITIVE, 15% NEUTRAL, 5% NEGATIVE
-- POSITIVE:       65% POSITIVE, 25% NEUTRAL, 10% NEGATIVE
-- NEUTRAL:        15% POSITIVE, 75% NEUTRAL, 10% NEGATIVE
-- NEGATIVE:        5% POSITIVE, 25% NEUTRAL, 70% NEGATIVE
+  Rules:
+  - Every review must include the product name in the body
+  - Follow the distribution per product exactly
 
-Rules:
-- Follow the CONFIG skew per product exactly
-- Every product must have reviews in ALL three sentiment classes — never 100% in one
-- POSITIVE_HEAVY > POSITIVE > NEUTRAL > NEGATIVE in positivity — do not flatten
+  FIELDS:
+  - product          → uppercase string
+  - sentiment        → POSITIVE | NEUTRAL | NEGATIVE
+  - body             → review text
+  - helpfulVotes     → 0–200
+  - verifiedPurchase → 70% true
 
-FIELDS:
-- id               → 1–100
-- product          → uppercase string
-- sentiment        → POSITIVE | NEUTRAL | NEGATIVE
-- body             → review text
-- helpfulVotes     → 0–200
-- verifiedPurchase → 70% true
-
-WRITING STYLES:
-25% casual/sloppy · 20% emotional · 15% analytical · 20% short/blunt · 10% chaotic · 10% third-party
-30% of reviews: typos, missing apostrophes, inconsistent capitalization
+  WRITING STYLES:
+  25% casual/sloppy · 20% emotional · 15% analytical · 20% short/blunt · 10% chaotic · 10% third-party
+  30% of reviews: typos, missing apostrophes, inconsistent capitalization

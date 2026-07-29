@@ -1,0 +1,15 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "product": { "type": "string", "enum": ["IPHONE", "MACBOOK", "AIRPODS", "IPAD"] },
+      "sentiment": { "type": "string", "enum": ["POSITIVE", "NEUTRAL", "NEGATIVE"] },
+      "body": { "type": "string" },
+      "helpfulVotes": { "type": "integer" },
+      "verifiedPurchase": { "type": "boolean" }
+    },
+    "required": ["product", "sentiment", "body", "helpfulVotes", "verifiedPurchase"]
+  }
+}
