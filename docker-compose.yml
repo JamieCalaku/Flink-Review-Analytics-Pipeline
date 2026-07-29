@@ -1,3 +1,20 @@
+# Below is the shared configuration for different services
+x-shared-config: &shared-config
+  # Kafka configuration
+  KAFKA_TOPIC: reviews
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  # PostgreSQL configuration
+  POSTGRES_URL: jdbc:postgresql://postgres:5432/flink
+  POSTGRES_DB: flink
+  POSTGRES_USER: flink
+  POSTGRES_PASSWORD: flink
+
+  # AWS configuration
+  # *IMPORTANT* Replace ${AWS_ACCESS_KEY_ID} and ${AWS_SECRET_ACCESS_KEY} with your actual AWS credentials *IMPORTANT*
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
 services:
   kafka:
     image: confluentinc/cp-kafka:7.6.0
@@ -19,9 +36,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: flink
-      POSTGRES_PASSWORD: flink
-      POSTGRES_DB: flink
+      <<: *shared-config
 
   producer:
     build:
@@ -31,8 +46,38 @@ services:
       - kafka
       - postgres
     environment:
-        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      <<: *shared-config
 
-        # replace ${AWS_ACCESS_KEY_ID} and ${AWS_SECRET_ACCESS_KEY} with your actual AWS credentials.
-        AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-        AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      # Here you can configure the number of reviews that the producer will generate for each Stage
+      # Note: This is only approximate, to simulate a more realistic data flow
+      PRODUCER_BASELINE_REVIEW_COUNT: 120
+      PRODUCER_DROP_REVIEW_COUNT: 80
+      # Here you can configure the weights for each sentiment category (first value is positive, second is neutral, third is negative)
+      # Basically, the percentage of reviews of a specific sentiment that will be generated for each sentiment category
+      PRODUCER_WEIGHT_POSITIVE_HEAVY: 75,15,10
+      PRODUCER_WEIGHT_POSITIVE: 60,30,10
+      PRODUCER_WEIGHT_NEUTRAL: 20,60,20
+      PRODUCER_WEIGHT_NEGATIVE: 10,30,60
+      PRODUCER_WEIGHT_DROP: 10,15,75
+      # The producer will sleep for a random duration between SLEEP_START and SLEEP_END milliseconds before publishing the next review to the Kafka topic
+      # In this way we simulate a more realistic data flow
+      PRODUCER_SLEEP_START: 100
+      PRODUCER_SLEEP_END: 2001
+
+      # AWS configuration
+      PRODUCER_AWS_REGION: eu-central-1
+      PRODUCER_AWS_TIMEOUT: 5 # in Minutes
+      # Must be an Anthropic model that supports the bedrock-2023-05-31 API version and is available in the chosen region
+      PRODUCER_AWS_MODEL_ID: global.anthropic.claude-haiku-4-5-20251001-v1:0 # This model is used for generating reviews
+      PRODUCER_AWS_MODEL_MAX_TOKENS: 10000 # This is the maximum number of tokens that the model can generate in a single response
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      - kafka
+      - postgres
+      - producer
+    environment:
+      <<: *shared-config

@@ -4,12 +4,21 @@
             <pattern>%d{HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="SIMPLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%logger{0}] %msg%n</pattern>
+        </encoder>
+    </appender>
 
-    <!-- AWS -->
+
     <logger name="software.amazon.awssdk" level="WARN"/>
     <logger name="org.apache.http" level="WARN"/>
-    <logger name="org.apache.kafka" level="ERROR"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.flink" level="INFO"/>
 
+    <logger name="com.jamiecalaku" level="INFO" additivity="false">
+        <appender-ref ref="SIMPLE"/>
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

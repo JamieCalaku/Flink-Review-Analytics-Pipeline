@@ -1,6 +1,7 @@
 package com.jamiecalaku.llm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jamiecalaku.utils.FileLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -16,58 +17,47 @@ import java.util.List;
 import java.util.Map;
 
 public class LLMClient {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(LLMClient.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static final Region AWS_REGION = Region.of(System.getenv("PRODUCER_AWS_REGION"));
+    private static final Duration AWS_TIMEOUT = Duration.ofMinutes(Integer.parseInt(System.getenv("PRODUCER_AWS_TIMEOUT")));
+    private static final String AWS_MODEL_ID = System.getenv("PRODUCER_AWS_MODEL_ID");
+    private static final int AWS_MODEL_MAX_TOKENS = Integer.parseInt(System.getenv("PRODUCER_AWS_MODEL_MAX_TOKENS"));
 
     private static final BedrockRuntimeClient bedrockClient = BedrockRuntimeClient.builder()
-            .region(Region.EU_CENTRAL_1)
+            .region(AWS_REGION)
             .credentialsProvider(DefaultCredentialsProvider.create())
             .httpClientBuilder(ApacheHttpClient.builder()
-                    .socketTimeout(Duration.ofMinutes(4))
+                    .socketTimeout(AWS_TIMEOUT)
             )
             .build();
 
-    private static final Map<String, Object> JSON_SCHEMA = Map.of(
-            "type", "array",
-            "items", Map.of(
-                    "type", "object",
-                    "additionalProperties", false,
-                    "properties", Map.of(
-                            "id", Map.of("type", "integer"),
-                            "product", Map.of("type", "string", "enum", List.of("IPHONE", "MACBOOK", "AIRPODS", "IPAD")),
-                            "sentiment", Map.of("type", "string", "enum", List.of("POSITIVE", "NEUTRAL", "NEGATIVE")),
-                            "body", Map.of("type", "string"),
-                            "helpfulVotes", Map.of("type", "integer"),
-                            "verifiedPurchase", Map.of("type", "boolean")
-                    ),
-                    "required", List.of("id", "product", "sentiment", "body", "helpfulVotes", "verifiedPurchase")
-            )
-    );
+    private static final Map<String, Object> REVIEW_GENERATION_SCHEMA = FileLoader.getReviewGenerationSchema();
 
     public static String invokeModel(String prompt) {
         try {
+            // Structured output via Bedrock with a json schema
             Map<String, Object> requestBody = Map.of(
                     "messages", List.of(Map.of("role", "user", "content", prompt)),
-                    "max_tokens", 10000,
+                    "max_tokens", AWS_MODEL_MAX_TOKENS,
                     "anthropic_version", "bedrock-2023-05-31",
                     "output_config", Map.of(
                             "format", Map.of(
                                     "type", "json_schema",
-                                    "schema", JSON_SCHEMA
+                                    "schema", REVIEW_GENERATION_SCHEMA
                             )
                     )
             );
 
             InvokeModelRequest request = InvokeModelRequest.builder()
-                    .modelId("global.anthropic.claude-haiku-4-5-20251001-v1:0")
+                    .modelId(AWS_MODEL_ID)
                     .contentType("application/json")
                     .accept("application/json")
                     .body(SdkBytes.fromUtf8String(objectMapper.writeValueAsString(requestBody)))
                     .build();
 
-            logger.info("Invoking AWS Bedrock model {}...\n\n\n\n", request.modelId());
+            logger.info("Invoking AWS Bedrock model {}\n", request.modelId());
 
             InvokeModelResponse response = bedrockClient.invokeModel(request);
             return response.body().asUtf8String();
@@ -77,4 +67,3 @@ public class LLMClient {
         }
     }
 }
-
