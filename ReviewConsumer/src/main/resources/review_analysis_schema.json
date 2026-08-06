@@ -6,9 +6,8 @@
     "properties": {
       "id": { "type": "integer" },
       "product": { "type": "string", "enum": ["GTA_6", "FC_26", "CALL_OF_DUTY", "FORZA_HORIZON_6"] },
-      "sentiment": { "type": "string", "enum": ["POSITIVE", "NEUTRAL", "NEGATIVE"] },
-      "body": { "type": "string" }
+      "sentimentScore": { "type": "integer" }
     },
-    "required": ["id", "product", "sentiment", "body"]
+    "required": ["id", "product", "sentimentScore"]
   }
 }

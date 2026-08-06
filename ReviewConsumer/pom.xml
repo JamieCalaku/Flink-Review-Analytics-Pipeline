@@ -3,36 +3,57 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.jamiecalaku</groupId>
-  <artifactId>ReviewProducer</artifactId>
+  <artifactId>ReviewConsumer</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>ReviewProducer</name>
+  <name>ReviewConsumer</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
+    <flink.version>1.20.3</flink.version>
+    <flink.kafka.connector.version>3.4.0-1.20</flink.kafka.connector.version>
+    <flink.jdbc.connector.version>3.3.0-1.20</flink.jdbc.connector.version>
     <aws.sdk.version>2.42.18</aws.sdk.version>
-    <kafka.version>4.2.0</kafka.version>
     <postgresql.version>42.7.7</postgresql.version>
-    <jackson.version>2.18.3</jackson.version>
     <slf4j.version>2.0.16</slf4j.version>
     <logback.version>1.5.12</logback.version>
   </properties>
 
   <dependencies>
-    <!-- Kafka -->
+    <!-- Flink -->
     <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
-      <version>${kafka.version}</version>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-streaming-java</artifactId>
+      <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-clients</artifactId>
+      <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-base</artifactId>
+      <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-runtime-web</artifactId>
+      <version>${flink.version}</version>
     </dependency>
 
-    <!-- Jackson -->
+    <!-- Flink Connectors -->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-kafka</artifactId>
+      <version>${flink.kafka.connector.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-jdbc</artifactId>
+      <version>${flink.jdbc.connector.version}</version>
     </dependency>
 
     <!-- AWS Bedrock -->

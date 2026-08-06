@@ -1,0 +1,10 @@
+The following video game reviews show a significant drop in customer satisfaction.
+Summarize the main problem(s) in 2-3 sentences. Focus on what the customers are complaining about, not on the fact that sentiment dropped.
+
+If a last summary exists, keep what's still relevant and add any new issues from the reviews below. Don't repeat the same points — only add what's missing.
+
+Reviews:
+{BODIES}
+
+Last summary:
+{LAST_SUMMARY}

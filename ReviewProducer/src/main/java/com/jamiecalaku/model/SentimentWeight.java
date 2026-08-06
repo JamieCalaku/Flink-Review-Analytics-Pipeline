@@ -12,10 +12,16 @@ public enum SentimentWeight {
     public final int negativeWeight;
 
     SentimentWeight() {
-        // Load weights from env
+        // Load weights from docker env
         String[] parts = System.getenv("PRODUCER_WEIGHT_" + this.name()).split(",");
         this.positiveWeight = Integer.parseInt(parts[0]);
-        this.neutralWeight  = Integer.parseInt(parts[1]);
+        this.neutralWeight = Integer.parseInt(parts[1]);
         this.negativeWeight = Integer.parseInt(parts[2]);
+    }
+
+    public Sentiment getDominantSentiment() {
+        if (positiveWeight >= neutralWeight && positiveWeight >= negativeWeight) return Sentiment.POSITIVE;
+        if (neutralWeight >= negativeWeight) return Sentiment.NEUTRAL;
+        return Sentiment.NEGATIVE;
     }
 }

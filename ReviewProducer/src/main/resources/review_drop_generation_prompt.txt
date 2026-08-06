@@ -1,22 +1,20 @@
- Generate a raw JSON array of exactly {REVIEW_COUNT} Apple product reviews for a sentiment analysis pipeline.
+ Generate a raw JSON array of exactly {REVIEW_COUNT} video game reviews for a sentiment analysis pipeline.
 
-  REVIEW DISTRIBUTION:
-  - IPHONE:  {IPHONE_POSITIVE_COUNT} POSITIVE, {IPHONE_NEUTRAL_COUNT} NEUTRAL, {IPHONE_NEGATIVE_COUNT} NEGATIVE
-  - MACBOOK: {MACBOOK_POSITIVE_COUNT} POSITIVE, {MACBOOK_NEUTRAL_COUNT} NEUTRAL, {MACBOOK_NEGATIVE_COUNT} NEGATIVE
-  - AIRPODS: {AIRPODS_POSITIVE_COUNT} POSITIVE, {AIRPODS_NEUTRAL_COUNT} NEUTRAL, {AIRPODS_NEGATIVE_COUNT} NEGATIVE
-  - IPAD:    {IPAD_POSITIVE_COUNT} POSITIVE, {IPAD_NEUTRAL_COUNT} NEUTRAL, {IPAD_NEGATIVE_COUNT} NEGATIVE
+REVIEW DISTRIBUTION — fill every id range completely, no gaps, no overlaps:
+{DISTRIBUTION}
 
   Rules:
-  - Every review must include the product name in the body
+  - Every review must include the product name in the body in normal writing style (NOT GTA_6, RATHER Gta 6 and bring some variation in).
+  - Never mention the company/developer of the game
   - Follow the distribution per product exactly
-  - 90% of Negative Reviews must target concrete product flaws — not shipping, service, or price.
+  - Negative reviews should be mild and constructive — things like "matchmaking could be better", "gets repetitive after a while", "a bit overpriced for what you get".
+  - Exception: {DROPPED_PRODUCT} just received a major update that ruined the game. Its negative reviews MUST complain about update-related issues like pay-to-win mechanics, new bugs, crashes, or broken features.
 
   FIELDS:
+  - id               → id 1-{REVIEW_COUNT}
   - product          → uppercase string
   - sentiment        → POSITIVE | NEUTRAL | NEGATIVE
   - body             → review text
-  - helpfulVotes     → 0–200
-  - verifiedPurchase → 70% true
 
   WRITING STYLES:
   25% casual/sloppy · 20% emotional · 15% analytical · 20% short/blunt · 10% chaotic · 10% third-party

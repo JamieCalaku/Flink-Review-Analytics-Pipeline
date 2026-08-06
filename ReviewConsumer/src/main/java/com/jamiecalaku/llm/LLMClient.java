@@ -19,10 +19,10 @@ public class LLMClient {
     private static final Logger logger = LoggerFactory.getLogger(LLMClient.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final Region AWS_REGION = Region.of(System.getenv("PRODUCER_AWS_REGION"));
-    private static final Duration AWS_TIMEOUT = Duration.ofMinutes(Integer.parseInt(System.getenv("PRODUCER_AWS_TIMEOUT")));
-    private static final String AWS_MODEL_ID = System.getenv("PRODUCER_AWS_MODEL_ID");
-    private static final int AWS_MODEL_MAX_TOKENS = Integer.parseInt(System.getenv("PRODUCER_AWS_MODEL_MAX_TOKENS"));
+    private static final Region AWS_REGION = Region.of(System.getenv("CONSUMER_AWS_REGION"));
+    private static final Duration AWS_TIMEOUT = Duration.ofMinutes(Integer.parseInt(System.getenv("CONSUMER_AWS_TIMEOUT")));
+    private static final String AWS_MODEL_ID = System.getenv("CONSUMER_AWS_MODEL_ID");
+    private static final int AWS_MODEL_MAX_TOKENS = Integer.parseInt(System.getenv("CONSUMER_AWS_MODEL_MAX_TOKENS"));
 
     private static final BedrockRuntimeClient bedrockClient = BedrockRuntimeClient.builder()
             .region(AWS_REGION)
