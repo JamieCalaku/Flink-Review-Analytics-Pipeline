@@ -1,4 +1,4 @@
-# Below is the shared configuration for different services
+# Below is the shared configuration for Kafka, PostgreSQL, Producer and Consumer
 x-shared-config: &shared-config
   # Kafka configuration
   KAFKA_TOPIC: reviews
@@ -11,7 +11,7 @@ x-shared-config: &shared-config
   POSTGRES_PASSWORD: flink
 
   # AWS configuration
-  # *IMPORTANT* Replace ${AWS_ACCESS_KEY_ID} and ${AWS_SECRET_ACCESS_KEY} with your actual AWS credentials *IMPORTANT*
+  # *IMPORTANT* Duplicte .env.example and rename it to .env | Then replace the placeholders with your credentials. *IMPORTANT*
   AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
   AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
 
@@ -30,6 +30,11 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       CLUSTER_ID: iLop8HqkQhCwG_ym3hiISw
+    healthcheck:
+      test: kafka-broker-api-versions --bootstrap-server localhost:9092
+      interval: 5s
+      retries: 12
+      start_period: 15s
 
   postgres:
     image: postgres:16
@@ -37,47 +42,141 @@ services:
       - "5432:5432"
     environment:
       <<: *shared-config
+    healthcheck:
+      test: pg_isready -U flink
+      interval: 3s
+      retries: 10
+      start_period: 5s
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    environment:
+      <<: *shared-config
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/executive-overview.json
+
+      GF_AUTH_ANONYMOUS_ENABLED: true
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+
+      GF_PANELS_DISABLE_SANITIZE_HTML: true
+      GF_USERS_DEFAULT_THEME: dark
+      GF_BRANDING_APP_TITLE: Flink AI Pipeline
+
+      GF_EXPLORE_ENABLED: false
+      GF_ALERTING_ENABLED: false
+      GF_NEWS_NEWS_FEED_ENABLED: false
+      GF_HELP_ENABLED: false
+      GF_PROFILE_ENABLED: false
+
+      GF_LOG_FILTERS: authn.service:error
 
   producer:
     build:
       context: .
       dockerfile: Dockerfile.producer
     depends_on:
-      - kafka
-      - postgres
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
       <<: *shared-config
-
       # Here you can configure the number of reviews that the producer will generate for each Stage
-      # Note: This is only approximate, to simulate a more realistic data flow
-      PRODUCER_BASELINE_REVIEW_COUNT: 120
-      PRODUCER_DROP_REVIEW_COUNT: 80
+      # Note: This is only approximate
+      PRODUCER_BASELINE_REVIEW_COUNT: 250
+      PRODUCER_DROP_REVIEW_COUNT: 250
+
+      # The producer will sleep for a random duration between SLEEP_START and SLEEP_END seconds before publishing the next review to the Kafka topic
+      # In this way we simulate a more realistic data flow
+      PRODUCER_SLEEP_START: 0.5
+      PRODUCER_SLEEP_END: 2.0
+
       # Here you can configure the weights for each sentiment category (first value is positive, second is neutral, third is negative)
       # Basically, the percentage of reviews of a specific sentiment that will be generated for each sentiment category
-      PRODUCER_WEIGHT_POSITIVE_HEAVY: 75,15,10
-      PRODUCER_WEIGHT_POSITIVE: 60,30,10
-      PRODUCER_WEIGHT_NEUTRAL: 20,60,20
-      PRODUCER_WEIGHT_NEGATIVE: 10,30,60
-      PRODUCER_WEIGHT_DROP: 10,15,75
-      # The producer will sleep for a random duration between SLEEP_START and SLEEP_END milliseconds before publishing the next review to the Kafka topic
-      # In this way we simulate a more realistic data flow
-      PRODUCER_SLEEP_START: 100
-      PRODUCER_SLEEP_END: 2001
+      PRODUCER_WEIGHT_POSITIVE_HEAVY: 90,5,5
+      PRODUCER_WEIGHT_POSITIVE:       65,25,10
+      PRODUCER_WEIGHT_NEUTRAL:        15,70,15
+      PRODUCER_WEIGHT_NEGATIVE:       10,15,75
+      PRODUCER_WEIGHT_DROP:           5,5,90
+
+      # Reviews that align with the products dominant sentiment get better reviewer reputation scores and are more likely to be verified purchases
+      PRODUCER_MINORITY_REPUTATION_MIN: 0
+      PRODUCER_MINORITY_REPUTATION_MAX: 5
+      PRODUCER_MAJORITY_REPUTATION_MIN: 4
+      PRODUCER_MAJORITY_REPUTATION_MAX: 10
+      PRODUCER_MINORITY_VERIFIED_CHANCE: 0.65
+      PRODUCER_MAJORITY_VERIFIED_CHANCE: 0.95
 
       # AWS configuration
       PRODUCER_AWS_REGION: eu-central-1
       PRODUCER_AWS_TIMEOUT: 5 # in Minutes
       # Must be an Anthropic model that supports the bedrock-2023-05-31 API version and is available in the chosen region
       PRODUCER_AWS_MODEL_ID: global.anthropic.claude-haiku-4-5-20251001-v1:0 # This model is used for generating reviews
-      PRODUCER_AWS_MODEL_MAX_TOKENS: 10000 # This is the maximum number of tokens that the model can generate in a single response
+      PRODUCER_AWS_MODEL_MAX_TOKENS: 20000 # This is the maximum number of tokens that the model can generate in a single response
 
   consumer:
     build:
       context: .
       dockerfile: Dockerfile.consumer
     depends_on:
-      - kafka
-      - postgres
-      - producer
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      producer:
+        condition: service_started
+    ports:
+      - "8081:8081"
     environment:
       <<: *shared-config
+      # Flink Web UI configuration
+      CONSUMER_FLINK_UI_PORT: 8081
+
+      # Ingestion Pipeline configuration
+      CONSUMER_INGESTION_DB_BATCH_SIZE: 20 # The number of reviews that a single batch can hold
+      CONSUMER_INGESTION_DB_BATCH_INTERVAL: 20 # The interval in seconds at which the batch will be ingested no matter how many reviews are in the batch
+
+      # Analysis Pipeline configuration
+      CONSUMER_ANALYSIS_DB_BATCH_SIZE: 20 # The number of analysed reviews that a single batch can hold
+      CONSUMER_ANALYSIS_DB_BATCH_INTERVAL: 20 # The interval in seconds at which the batch will be ingested no matter how many analysed reviews are in the batch
+
+      CONSUMER_ANALYSIS_TIME_WINDOW: 30 # The time window in seconds for the tumbling window that analysis the reviews in batches
+
+      CONSUMER_ANALYSIS_VERIFIED_PURCHASE_MULTIPLIER: 1.5 # The multiplier for verified purchases
+      CONSUMER_ANALYSIS_VERIFIED_PURCHASE_DIVISOR: 0.5 # The divisor for non verified purchases
+      CONSUMER_ANALYSIS_REPUTATION_MULTIPLIER: 0.1 # Weight added per reputation point
+
+      # Product Ranking Pipeline configuration
+      CONSUMER_RANKING_DB_BATCH_SIZE: 10 # The number of product ranking updates that a single batch can hold
+      CONSUMER_RANKING_DB_BATCH_INTERVAL: 20 # The interval in seconds at which the batch will be ingested no matter how many product rankings are in the batch
+
+      # Drop Detection Pipeline configuration
+      CONSUMER_DROP_DETECTION_DB_BATCH_SIZE: 1 # The number of product alerts ranking updates that a single batch can hold
+      CONSUMER_DROP_DETECTION_DB_BATCH_INTERVAL: 0 # The interval in seconds at which the batch will be ingested
+
+      CONSUMER_DROP_DETECTION_BASELINE_SIZE: 60 # Number of initial reviews to build the "normal" reference
+      CONSUMER_DROP_DETECTION_WINDOW_SIZE: 15 # Sliding window of recent scores to compare against baseline
+      CONSUMER_DROP_DETECTION_THRESHOLD: 20 # Minimum drop percentage to trigger an alert
+      CONSUMER_DROP_DETECTION_TIMEOUT: 10 # Seconds without new reviews before forcing a final drop check
+
+      CONSUMER_DROP_DETECTION_SEVERITY_CRITICAL: 50 # Drop percentage to classify as CRITICAL
+      CONSUMER_DROP_DETECTION_SEVERITY_HIGH: 40 # Drop percentage to classify as HIGH
+      CONSUMER_DROP_DETECTION_SEVERITY_MEDIUM: 20 # Drop percentage to classify as MEDIUM, below this is classified as LOW
+
+
+      # AWS configuration
+      CONSUMER_AWS_REGION: eu-central-1
+      CONSUMER_AWS_TIMEOUT: 5 # in Minutes
+      # Must be an Anthropic model that supports the bedrock-2023-05-31 API version and is available in the chosen region
+      CONSUMER_AWS_MODEL_ID: global.anthropic.claude-haiku-4-5-20251001-v1:0 # This model is used for generating reviews
+      CONSUMER_AWS_MODEL_MAX_TOKENS: 8000 # This is the maximum number of tokens that the model can generate in a single response

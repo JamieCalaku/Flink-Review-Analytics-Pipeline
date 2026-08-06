@@ -9,10 +9,11 @@ import java.util.Map;
 public class FileLoader {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final Map<String, Object> REVIEW_GENERATION_SCHEMA = loadJsonResource("review_generation_schema.json");
+    private static final Map<String, Object> REVIEW_ANALYSIS_SCHEMA = loadJsonResource("review_analysis_schema.json");
+    private static final String REVIEW_ANALYSIS_PROMPT = loadTextResource("review_analysis_prompt.txt");
 
-    private static final String REVIEW_GENERATION_PROMPT = loadTextResource("review_generation_prompt.txt");
-    private static final String REVIEW_DROP_GENERATION_PROMPT = loadTextResource("review_drop_generation_prompt.txt");
+    private static final Map<String, Object> DROP_DETECTION_SUMMARY_SCHEMA = loadJsonResource("product_drop_detection_summary_schema.json");
+    private static final String DROP_DETECTION_SUMMARY_PROMPT = loadTextResource("product_drop_detection_summary_prompt.txt");
 
     private static String loadTextResource(String filename) {
         try (InputStream inputStream = FileLoader.class.getClassLoader().getResourceAsStream(filename)) {
@@ -30,16 +31,20 @@ public class FileLoader {
         }
     }
 
-    public static Map<String, Object> getReviewGenerationSchema() {
-        return REVIEW_GENERATION_SCHEMA;
+    public static Map<String, Object> getReviewAnalysisSchema() {
+        return REVIEW_ANALYSIS_SCHEMA;
     }
 
-    public static String getReviewGenerationPrompt() {
-        return REVIEW_GENERATION_PROMPT;
+    public static String getReviewAnalysisPrompt() {
+        return REVIEW_ANALYSIS_PROMPT;
     }
 
-    public static String getReviewDropGenerationPrompt() {
-        return REVIEW_DROP_GENERATION_PROMPT;
+    public static Map<String, Object> getDropDetectionSummarySchema() {
+        return DROP_DETECTION_SUMMARY_SCHEMA;
+    }
+
+    public static String getDropDetectionSummaryPrompt() {
+        return DROP_DETECTION_SUMMARY_PROMPT;
     }
 
 }

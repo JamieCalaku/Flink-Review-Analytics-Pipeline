@@ -1,0 +1,13 @@
+Analyze the following reviews one by one.
+
+- Try to give the most accurate sentiment score for each review based on the content.
+- Use the full 1-100 range. Any integer is valid, not just multiples of 5 or 10.
+- Two reviews get the same score only if they are equally positive. Different wording, intensity or detail must produce different scores.
+
+Return a JSON array with exactly these fields for each review:
+'id' (integer),
+'product' (Enum: GTA_6, FC_26, CALL_OF_DUTY, FORZA_HORIZON_6),
+'sentimentScore' (integer 1-100 where 1 is worst, 50 is middle and 100 is best)
+
+REVIEWS:
+{REVIEWS}

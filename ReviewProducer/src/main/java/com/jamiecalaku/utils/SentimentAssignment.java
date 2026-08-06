@@ -14,10 +14,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SentimentAssignment {
     private static final Logger logger = LoggerFactory.getLogger(SentimentAssignment.class);
 
-    private static final SentimentWeight iphoneSentiment;
-    private static final SentimentWeight macbookSentiment;
-    private static final SentimentWeight airpodsSentiment;
-    private static final SentimentWeight ipadSentiment;
+    private static final SentimentWeight gta6Sentiment;
+    private static final SentimentWeight fc26Sentiment;
+    private static final SentimentWeight callOfDutySentiment;
+    private static final SentimentWeight forzaHorizon6Sentiment;
 
     static {
         List<SentimentWeight> sentiments = new ArrayList<>(List.of(
@@ -29,32 +29,26 @@ public class SentimentAssignment {
         // Assign sentiments to products randomly by shuffling
         Collections.shuffle(sentiments, ThreadLocalRandom.current());
 
-        iphoneSentiment = sentiments.get(0);
-        macbookSentiment = sentiments.get(1);
-        airpodsSentiment = sentiments.get(2);
-        ipadSentiment = sentiments.get(3);
+        gta6Sentiment = sentiments.get(0);
+        fc26Sentiment = sentiments.get(1);
+        callOfDutySentiment = sentiments.get(2);
+        forzaHorizon6Sentiment = sentiments.get(3);
 
         logger.info("""
-             \nIphone Sentiment:  {}
-             Macbook Sentiment: {}
-             Airpods Sentiment: {}
-             Ipad Sentiment:    {}
-             """, iphoneSentiment, macbookSentiment, airpodsSentiment, ipadSentiment);
+
+             GTA 6 Sentiment:           {}
+             FC 26 Sentiment:           {}
+             Call of Duty Sentiment:    {}
+             Forza Horizon 6 Sentiment: {}
+             """, gta6Sentiment, fc26Sentiment, callOfDutySentiment, forzaHorizon6Sentiment
+        );
     }
 
     public static Map<Sentiment, Integer> distributeReviews(SentimentWeight sentimentWeight, int totalReviews) {
         // Convert Percentages to actual numbers and slightly randomize it
         int positive = applyWeight(totalReviews, sentimentWeight.positiveWeight);
         int neutral  = applyWeight(totalReviews, sentimentWeight.neutralWeight);
-
-        // Remaining will be negative
-        int negative = totalReviews - positive - neutral;
-
-        // If negative is less than 0, we need to adjust positive and negative counts to ensure they sum up to totalReviews
-        if (negative < 0) {
-            positive += negative;
-            negative = 0;
-        }
+        int negative = Math.max(0, totalReviews - positive - neutral);
 
         return Map.of(
                 Sentiment.POSITIVE, positive,
@@ -64,6 +58,7 @@ public class SentimentAssignment {
     }
 
     private static int applyWeight(int totalReviews, int weightPercentage) {
+        // Calculate variation based on total reviews
         int base = Math.round(totalReviews * weightPercentage / 100f);
         int maxVariation = Math.max(1, totalReviews / 20);
         int variation = ThreadLocalRandom.current().nextInt(-maxVariation, maxVariation + 1);
@@ -71,23 +66,33 @@ public class SentimentAssignment {
     }
 
     // This method will return DROP when the sentiment equals exactly positive
+    // This is used to initiate the sentiment drop for the product with the positive sentiment
     public static SentimentWeight getDropSentiment(SentimentWeight sentiment) {
         return sentiment == SentimentWeight.POSITIVE ? SentimentWeight.DROP : sentiment;
     }
 
-    public static SentimentWeight getIphoneSentiment() {
-        return iphoneSentiment;
+    public static String getDroppedProduct() {
+        if (gta6Sentiment == SentimentWeight.POSITIVE) return "GTA_6";
+        if (fc26Sentiment == SentimentWeight.POSITIVE) return "FC_26";
+        if (callOfDutySentiment == SentimentWeight.POSITIVE) return "CALL_OF_DUTY";
+        if (forzaHorizon6Sentiment == SentimentWeight.POSITIVE) return "FORZA_HORIZON_6";
+        return "UNKNOWN";
     }
 
-    public static SentimentWeight getMacbookSentiment() {
-        return macbookSentiment;
+    public static SentimentWeight getGta6Sentiment() {
+        return gta6Sentiment;
     }
 
-    public static SentimentWeight getAirpodsSentiment() {
-        return airpodsSentiment;
+    public static SentimentWeight getFc26Sentiment() {
+        return fc26Sentiment;
     }
 
-    public static SentimentWeight getIpadSentiment() {
-        return ipadSentiment;
+    public static SentimentWeight getCallOfDutySentiment() {
+        return callOfDutySentiment;
     }
+
+    public static SentimentWeight getForzaHorizon6Sentiment() {
+        return forzaHorizon6Sentiment;
+    }
+
 }
