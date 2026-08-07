@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 4,
   "links": [
     {
       "icon": "dashboard",
@@ -218,7 +218,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  product AS \"Product\",\n  severity AS \"Severity\",\n  ROUND(drop_percentage :: numeric, 1) AS \"Drop %\",\n  ROUND(previous_average :: numeric, 1) AS \"Previous\",\n  ROUND(current_average :: numeric, 1) AS \"Current\",\n  summary AS \"LLM Summary\",\n  timestamp AS \"Timestamp\"\nFROM\n  product_alerts\nORDER BY\n  timestamp DESC;",
+          "rawSql": "SELECT\n  product AS \"Product\",\n  severity AS \"Severity\",\n  ROUND(previous_average :: numeric, 1) AS \"Previous\",\n  ROUND(current_average :: numeric, 1) AS \"Current\",\n  ROUND(drop_percentage :: numeric, 1) AS \"Drop %\",\n  summary AS \"LLM Summary\",\n  timestamp AS \"Timestamp\"\nFROM\n  product_alerts\nORDER BY\n  timestamp DESC;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -460,6 +460,6 @@
   "timezone": "browser",
   "title": "Alert Overview",
   "uid": "dfu4qmk1jojk0d",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
