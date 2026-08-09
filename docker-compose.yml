@@ -170,9 +170,8 @@ services:
       CONSUMER_DROP_DETECTION_TIMEOUT: 10 # Seconds without new reviews before forcing a final drop check
 
       CONSUMER_DROP_DETECTION_SEVERITY_CRITICAL: 50 # Drop percentage to classify as CRITICAL
-      CONSUMER_DROP_DETECTION_SEVERITY_HIGH: 40 # Drop percentage to classify as HIGH
-      CONSUMER_DROP_DETECTION_SEVERITY_MEDIUM: 20 # Drop percentage to classify as MEDIUM, below this is classified as LOW
-
+      CONSUMER_DROP_DETECTION_SEVERITY_HIGH: 35 # Drop percentage to classify as HIGH
+      CONSUMER_DROP_DETECTION_SEVERITY_MEDIUM: 25 # Drop percentage to classify as MEDIUM
 
       # AWS configuration
       CONSUMER_AWS_REGION: eu-central-1
