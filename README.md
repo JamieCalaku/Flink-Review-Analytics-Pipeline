@@ -313,11 +313,12 @@ Everything is an environment variable in [`docker-compose.yml`](docker-compose.y
 | `PRODUCER_BASELINE_REVIEW_COUNT` | `250` | reviews in stage 1 |
 | `PRODUCER_DROP_REVIEW_COUNT` | `250` | reviews in stage 2 |
 | `PRODUCER_WEIGHT_POSITIVE_HEAVY` | `90,5,5` | positive / neutral / negative split % |
-| `PRODUCER_WEIGHT_POSITIVE` | `65,25,10` | the profile that gets dropped later |
-| `PRODUCER_WEIGHT_NEUTRAL` | `15,70,15` | |
-| `PRODUCER_WEIGHT_NEGATIVE` | `10,15,75` | |
-| `PRODUCER_WEIGHT_DROP` | `5,5,90` | what `POSITIVE` turns into in stage 2 |
-| `PRODUCER_MAJORITY_REPUTATION_MIN` / `_MAX` | `4` / `10` | reputation for majority sentiment reviews, the rest get `0–5` |
+| `PRODUCER_WEIGHT_POSITIVE` | `65,25,10` | ... |
+| `PRODUCER_WEIGHT_NEUTRAL` | `15,70,15` | ... |
+| `PRODUCER_WEIGHT_NEGATIVE` | `10,15,75` | ... |
+| `PRODUCER_WEIGHT_DROP` | `5,5,90` | ... what `POSITIVE` turns into in stage 2 |
+| `PRODUCER_MINORITY_REPUTATION_MIN` / `_MAX` | `0` / `5` | Min / max reputation for minority reviews |
+| `PRODUCER_MAJORITY_REPUTATION_MIN` / `_MAX` | `4` / `10` | Min / Max reputation for majority reviews |
 
 </details>
 
@@ -383,30 +384,6 @@ Now the producer sets it in Java after the reviews come back, based on whether a
 | Agrees with the majority | `4–10` | 95% |
 
 The ranges overlap on purpose so it stays a tendency, not a rule. And it's what makes the drop detection work, because once a game collapses the complaints *become* the majority and pull the weighted average down much harder than noise could.
-
-</details>
-
-<br><br>
-
-<details>
-<summary><b>False alarms</b>, three alerts and only one of them correct</summary>
-
-Early runs gave me three alerts. One was real, the other two were small dips on products.
-
-The reason was that I didn't use the smart weighted score but the average score. Also my threshold wasn't set up well, I was pushing the limits of an LLM so I couldn't completely trust it.
-
-</details>
-
-<br>
-
-<details>
-<summary><b>Scores stayed on round numbers</b></summary>
-
-The sentiment scores looked off to me.
-
-The model kept landing on 25, 50, 85 and 90.
-
-What fixed it were explicit scoring rules in the prompt.
 
 </details>
 
